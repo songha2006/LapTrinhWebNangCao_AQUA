@@ -1,0 +1,87 @@
+<a href="/admin/orders" class="text-sm text-stone-500 hover:text-brand-600">&larr; Danh sách đơn hàng</a>
+
+<div class="grid lg:grid-cols-[1fr_340px] gap-6 items-start mt-4 max-w-6xl">
+  <div class="space-y-6">
+    <!-- Sản phẩm trong đơn -->
+    <div class="bg-white rounded-2xl border border-stone-200 divide-y divide-stone-100">
+      <% order.items.forEach(item => { %>
+        <div class="flex gap-4 p-4 items-center">
+          <div class="w-14 h-14 rounded-xl overflow-hidden bg-stone-50 border border-stone-100 shrink-0">
+            <img src="<%= item.variant ? (item.variant.image || item.variant.Product.thumbnail) : '' %>" alt="" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm"><%= item.variant && item.variant.Product ? item.variant.Product.name : 'Sản phẩm đã xóa' %></p>
+            <% if (item.variant) { %>
+              <p class="text-xs text-stone-500"><%= item.variant.color %> &middot; <%= item.variant.capacity %>ml</p>
+            <% } %>
+          </div>
+          <div class="text-right text-sm shrink-0">
+            <p><%= vnd(item.price) %> &times; <%= item.quantity %></p>
+            <p class="font-bold text-brand-700"><%= vnd(item.price * item.quantity) %></p>
+          </div>
+        </div>
+      <% }) %>
+      <div class="p-4 text-sm space-y-1.5">
+        <div class="flex justify-between"><span class="text-stone-500">Tạm tính</span><span><%= vnd(order.subtotal) %></span></div>
+        <% if (order.discount > 0) { %>
+          <div class="flex justify-between text-brand-600"><span>Giảm giá <%= order.Coupon ? `(${order.Coupon.code})` : '' %></span><span>-<%= vnd(order.discount) %></span></div>
+        <% } %>
+        <div class="flex justify-between font-bold text-base pt-1.5 border-t border-stone-100">
+          <span>Tổng cộng</span><span class="text-brand-700"><%= vnd(order.total) %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thông tin khách -->
+    <div class="bg-white rounded-2xl border border-stone-200 p-5">
+      <h2 class="font-semibold mb-3">Thông tin giao hàng</h2>
+      <dl class="text-sm space-y-1.5 text-stone-600">
+        <div class="flex gap-2"><dt class="text-stone-400 w-28 shrink-0">Tài khoản</dt><dd><%= order.User ? `${order.User.name} (${order.User.email})` : '?' %></dd></div>
+        <div class="flex gap-2"><dt class="text-stone-400 w-28 shrink-0">Người nhận</dt><dd class="font-medium text-ink"><%= order.receiver_name %></dd></div>
+        <div class="flex gap-2"><dt class="text-stone-400 w-28 shrink-0">Điện thoại</dt><dd><%= order.phone %></dd></div>
+        <div class="flex gap-2"><dt class="text-stone-400 w-28 shrink-0">Địa chỉ</dt><dd><%= order.address %></dd></div>
+        <% if (order.note) { %>
+          <div class="flex gap-2"><dt class="text-stone-400 w-28 shrink-0">Ghi chú</dt><dd><%= order.note %></dd></div>
+        <% } %>
+        <div class="flex gap-2"><dt class="text-stone-400 w-28 shrink-0">Ngày đặt</dt><dd><%= new Date(order.created_at).toLocaleString('vi-VN') %></dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Trạng thái -->
+  <div class="bg-white rounded-2xl border border-stone-200 p-5 lg:sticky lg:top-24">
+    <h2 class="font-semibold mb-3">Trạng thái đơn hàng</h2>
+    <div class="mb-4"><%- include('../../partials/order-status', { status: order.status }) %></div>
+
+    <div class="text-sm mb-4 space-y-1">
+      <p class="text-stone-500">Thanh toán: <span class="font-medium uppercase text-ink"><%= order.payment_method %></span></p>
+      <p class="text-stone-500">Tình trạng:
+        <span class="font-semibold <%= order.payment_status === 'paid' ? 'text-brand-600' : 'text-amber-600' %>">
+          <%= order.payment_status === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán' %>
+        </span>
+      </p>
+    </div>
+
+    <% if (nextStatuses.length) { %>
+      <div class="space-y-2">
+        <%
+          const actionLabels = {
+            confirmed: ['Xác nhận đơn', 'bg-brand-600 hover:bg-brand-700 text-white'],
+            shipping: ['Bắt đầu giao hàng', 'bg-brand-600 hover:bg-brand-700 text-white'],
+            completed: ['Hoàn thành đơn', 'bg-brand-600 hover:bg-brand-700 text-white'],
+            cancelled: ['Hủy đơn (hoàn kho)', 'border border-red-300 text-red-600 hover:bg-red-50'],
+          };
+        %>
+        <% nextStatuses.forEach(s => { %>
+          <form action="/admin/orders/<%= order.id %>/status" method="POST"
+                <%= s === 'cancelled' ? `onsubmit="return confirm('Hủy đơn hàng này? Kho sẽ được hoàn lại.')"` : '' %>>
+            <input type="hidden" name="status" value="<%= s %>">
+            <button class="w-full py-2.5 rounded-full text-sm font-semibold <%= actionLabels[s][1] %>"><%= actionLabels[s][0] %></button>
+          </form>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="text-xs text-stone-400">Đơn đã ở trạng thái cuối, không thể thay đổi.</p>
+    <% } %>
+  </div>
+</div>

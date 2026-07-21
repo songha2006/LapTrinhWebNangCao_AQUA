@@ -1,0 +1,95 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
+        <%= query.q ? `Kết quả cho "${query.q}"` : 'Tất cả sản phẩm' %>
+      </h1>
+      <p class="text-sm text-stone-500 mt-1"><%= total %> sản phẩm</p>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-[240px_1fr] gap-8">
+    <!-- Bộ lọc -->
+    <aside>
+      <form method="GET" action="/products" class="bg-white rounded-2xl border border-stone-200 p-5 space-y-5 lg:sticky lg:top-32">
+        <% if (query.q) { %><input type="hidden" name="q" value="<%= query.q %>"><% } %>
+        <% if (query.category) { %><input type="hidden" name="category" value="<%= query.category %>"><% } %>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Thương hiệu</label>
+          <select name="brand" class="w-full rounded-lg border border-stone-300 text-sm px-3 py-2 bg-white">
+            <option value="">Tất cả</option>
+            <% brands.forEach(b => { %>
+              <option value="<%= b.id %>" <%= query.brand == b.id ? 'selected' : '' %>><%= b.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Khoảng giá</label>
+          <div class="flex items-center gap-2">
+            <input type="number" name="price_min" value="<%= query.price_min || '' %>" placeholder="Từ" min="0" step="10000"
+                   class="w-full rounded-lg border border-stone-300 text-sm px-3 py-2">
+            <span class="text-stone-400">-</span>
+            <input type="number" name="price_max" value="<%= query.price_max || '' %>" placeholder="Đến" min="0" step="10000"
+                   class="w-full rounded-lg border border-stone-300 text-sm px-3 py-2">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Dung tích</label>
+          <select name="capacity" class="w-full rounded-lg border border-stone-300 text-sm px-3 py-2 bg-white">
+            <option value="">Tất cả</option>
+            <option value="lt500" <%= query.capacity === 'lt500' ? 'selected' : '' %>>Dưới 500ml</option>
+            <option value="500-750" <%= query.capacity === '500-750' ? 'selected' : '' %>>500 - 750ml</option>
+            <option value="gt750" <%= query.capacity === 'gt750' ? 'selected' : '' %>>Trên 750ml</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Màu sắc</label>
+          <select name="color" class="w-full rounded-lg border border-stone-300 text-sm px-3 py-2 bg-white">
+            <option value="">Tất cả</option>
+            <% colors.forEach(c => { %>
+              <option value="<%= c.color %>" <%= query.color === c.color ? 'selected' : '' %>><%= c.color %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Sắp xếp</label>
+          <select name="sort" class="w-full rounded-lg border border-stone-300 text-sm px-3 py-2 bg-white">
+            <option value="">Mới nhất</option>
+            <option value="price_asc" <%= query.sort === 'price_asc' ? 'selected' : '' %>>Giá thấp đến cao</option>
+            <option value="price_desc" <%= query.sort === 'price_desc' ? 'selected' : '' %>>Giá cao đến thấp</option>
+            <option value="name" <%= query.sort === 'name' ? 'selected' : '' %>>Tên A-Z</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button class="flex-1 py-2.5 rounded-full bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">Lọc</button>
+          <a href="/products" class="py-2.5 px-4 rounded-full border border-stone-300 text-sm font-medium hover:border-brand-500">Xóa</a>
+        </div>
+      </form>
+    </aside>
+
+    <!-- Danh sách -->
+    <div>
+      <% if (products.length === 0) { %>
+        <div class="bg-white rounded-2xl border border-stone-200 py-20 text-center">
+          <svg class="w-12 h-12 mx-auto text-stone-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <p class="mt-4 font-semibold">Không tìm thấy sản phẩm phù hợp</p>
+          <p class="text-sm text-stone-500 mt-1">Thử bỏ bớt bộ lọc hoặc tìm từ khóa khác.</p>
+          <a href="/products" class="inline-block mt-5 px-5 py-2.5 rounded-full bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">Xem tất cả sản phẩm</a>
+        </div>
+      <% } else { %>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+          <% products.forEach(p => { %>
+            <%- include('../partials/product-card', { p }) %>
+          <% }) %>
+        </div>
+        <%- include('../partials/pagination', { page, totalPages, query }) %>
+      <% } %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,124 @@
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-2xl md:text-3xl font-bold tracking-tight mb-6">Đặt hàng</h1>
+
+  <% if (errors.length) { %>
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-6 text-sm">
+      <ul class="list-disc list-inside space-y-0.5">
+        <% errors.forEach(e => { %><li><%= e.msg %></li><% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form id="checkout-form" action="/checkout" method="POST" class="grid lg:grid-cols-[1fr_360px] gap-8 items-start">
+    <!-- Thông tin giao hàng -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl border border-stone-200 p-6">
+        <h2 class="font-semibold mb-4">Thông tin giao hàng</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1.5" for="receiver_name">Người nhận</label>
+            <input id="receiver_name" type="text" name="receiver_name" required minlength="2"
+                   value="<%= old.receiver_name || user.name %>"
+                   class="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5" for="phone">Số điện thoại</label>
+            <input id="phone" type="tel" name="phone" required pattern="^0\d{9,10}$"
+                   value="<%= old.phone || user.phone || '' %>" placeholder="0912345678"
+                   class="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500">
+          </div>
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm font-medium mb-1.5" for="address">Địa chỉ nhận hàng</label>
+          <input id="address" type="text" name="address" required minlength="10"
+                 value="<%= old.address || user.address || '' %>" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+                 class="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500">
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm font-medium mb-1.5" for="note">Ghi chú (tùy chọn)</label>
+          <textarea id="note" name="note" rows="2" placeholder="Ví dụ: giao giờ hành chính"
+                    class="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500"><%= old.note || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-stone-200 p-6">
+        <h2 class="font-semibold mb-4">Phương thức thanh toán</h2>
+        <div class="space-y-3">
+          <label class="flex items-center gap-3 p-4 rounded-xl border border-stone-300 cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
+            <input type="radio" name="payment_method" value="cod" checked class="accent-brand-600 w-4 h-4">
+            <div>
+              <p class="font-medium text-sm">Thanh toán khi nhận hàng (COD)</p>
+              <p class="text-xs text-stone-500">Kiểm tra hàng trước khi thanh toán</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 p-4 rounded-xl border border-stone-300 cursor-pointer has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50">
+            <input type="radio" name="payment_method" value="vnpay" class="accent-brand-600 w-4 h-4">
+            <div>
+              <p class="font-medium text-sm">Thanh toán qua VNPay</p>
+              <p class="text-xs text-stone-500">ATM, thẻ quốc tế, QR Code (môi trường sandbox)</p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tóm tắt -->
+    <div class="bg-white rounded-2xl border border-stone-200 p-5 lg:sticky lg:top-32">
+      <h2 class="font-semibold mb-4">Đơn hàng (<%= items.length %> sản phẩm)</h2>
+      <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+        <% items.forEach(item => { %>
+          <div class="flex gap-3 items-center">
+            <div class="w-12 h-12 rounded-lg overflow-hidden bg-stone-50 border border-stone-100 shrink-0">
+              <img src="<%= item.variant.image || item.variant.Product.thumbnail %>" alt="" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium truncate"><%= item.variant.Product.name %></p>
+              <p class="text-xs text-stone-500"><%= item.variant.color %> &middot; <%= item.variant.capacity %>ml &times; <%= item.qty %></p>
+            </div>
+            <p class="text-xs font-semibold shrink-0"><%= vnd(item.lineTotal) %></p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </form>
+
+  <!-- Mã giảm giá: form riêng vì submit tới endpoint khác -->
+  <div class="grid lg:grid-cols-[1fr_360px] gap-8 mt-[-1px]">
+    <div></div>
+    <div class="bg-white rounded-2xl border border-stone-200 p-5">
+      <% if (coupon) { %>
+        <div class="flex items-center justify-between bg-brand-50 border border-brand-200 rounded-xl px-3 py-2.5">
+          <div>
+            <p class="text-sm font-semibold text-brand-700"><%= coupon.code %></p>
+            <p class="text-xs text-brand-600">Giảm <%= coupon.type === 'percent' ? coupon.value + '%' : vnd(coupon.value) %></p>
+          </div>
+          <form action="/checkout/coupon/remove" method="POST">
+            <button class="text-xs text-stone-500 hover:text-red-500 font-medium">Bỏ mã</button>
+          </form>
+        </div>
+      <% } else { %>
+        <form action="/checkout/coupon" method="POST" class="flex gap-2">
+          <input type="text" name="code" placeholder="Nhập mã giảm giá" required
+                 class="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500 uppercase">
+          <button class="px-4 py-2.5 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-700">Áp dụng</button>
+        </form>
+      <% } %>
+
+      <div class="mt-4 space-y-2 text-sm">
+        <div class="flex justify-between"><span class="text-stone-500">Tạm tính</span><span class="font-medium"><%= vnd(subtotal) %></span></div>
+        <% if (discount > 0) { %>
+          <div class="flex justify-between text-brand-600"><span>Giảm giá</span><span class="font-medium">-<%= vnd(discount) %></span></div>
+        <% } %>
+        <div class="flex justify-between"><span class="text-stone-500">Vận chuyển</span><span class="font-medium text-brand-600">Miễn phí</span></div>
+      </div>
+      <div class="border-t border-stone-200 mt-3 pt-3 flex justify-between items-center">
+        <span class="font-semibold">Tổng cộng</span>
+        <span class="text-xl font-extrabold text-brand-700"><%= vnd(total) %></span>
+      </div>
+      <button type="submit" form="checkout-form"
+              class="w-full mt-4 py-3 rounded-full bg-accent-500 text-white font-semibold hover:bg-accent-600 active:scale-[0.98] transition shadow-lg shadow-accent-500/20">
+        Đặt hàng
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="flex flex-wrap gap-2 mb-5">
+  <%
+    const filters = [['', 'Tất cả'], ['pending', 'Chờ xác nhận'], ['confirmed', 'Đã xác nhận'], ['shipping', 'Đang giao'], ['completed', 'Hoàn thành'], ['cancelled', 'Đã hủy']];
+  %>
+  <% filters.forEach(([val, label]) => { %>
+    <a href="/admin/orders<%= val ? '?status=' + val : '' %>"
+       class="px-4 py-2 rounded-full text-sm font-medium <%= statusFilter === val ? 'bg-brand-600 text-white' : 'bg-white border border-stone-200 hover:border-brand-400' %>">
+      <%= label %>
+    </a>
+  <% }) %>
+</div>
+
+<div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+  <table class="w-full text-sm min-w-[820px]">
+    <thead>
+      <tr class="text-left text-stone-400 border-b border-stone-100">
+        <th class="p-4 font-medium">Mã đơn</th>
+        <th class="p-4 font-medium">Khách hàng</th>
+        <th class="p-4 font-medium">Tổng tiền</th>
+        <th class="p-4 font-medium">Thanh toán</th>
+        <th class="p-4 font-medium">Trạng thái</th>
+        <th class="p-4 font-medium">Ngày đặt</th>
+        <th class="p-4 font-medium text-right">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-stone-50">
+      <% orders.forEach(o => { %>
+        <tr class="hover:bg-stone-50">
+          <td class="p-4 font-bold text-brand-600">#<%= o.id %></td>
+          <td class="p-4">
+            <p class="font-medium"><%= o.User ? o.User.name : '?' %></p>
+            <p class="text-xs text-stone-400"><%= o.phone %></p>
+          </td>
+          <td class="p-4 font-semibold"><%= vnd(o.total) %></td>
+          <td class="p-4">
+            <p class="text-xs font-medium uppercase"><%= o.payment_method %></p>
+            <p class="text-xs <%= o.payment_status === 'paid' ? 'text-brand-600' : 'text-amber-600' %>">
+              <%= o.payment_status === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán' %>
+            </p>
+          </td>
+          <td class="p-4"><%- include('../../partials/order-status', { status: o.status }) %></td>
+          <td class="p-4 text-xs text-stone-400"><%= new Date(o.created_at).toLocaleString('vi-VN') %></td>
+          <td class="p-4 text-right">
+            <a href="/admin/orders/<%= o.id %>" class="text-brand-600 hover:underline text-xs font-semibold">Chi tiết</a>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% if (orders.length === 0) { %>
+    <p class="p-10 text-center text-stone-400 text-sm">Không có đơn hàng nào.</p>
+  <% } %>
+</div>
+
+<%
+  const params = statusFilter ? { status: statusFilter } : {};
+%>
+<%- include('../../partials/pagination', { page, totalPages, query: params }) %>

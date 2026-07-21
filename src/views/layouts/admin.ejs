@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | AQUA Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef4f0',100:'#d7e6dd',200:'#b0ccbc',300:'#7faa92',400:'#4f886b',500:'#2f6b4e',600:'#245740',700:'#1d4634',800:'#193a2c',900:'#122a20' },
+            accent: { 500:'#e2612f', 600:'#cf5223', 700:'#b0431b' },
+            sand: '#f7f5f1',
+            ink: '#1a1815',
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          letterSpacing: { tightest: '-0.04em' },
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-sand text-ink font-sans">
+  <div class="flex min-h-[100dvh]">
+    <!-- Sidebar -->
+    <aside class="w-64 shrink-0 bg-ink text-white flex flex-col fixed inset-y-0 z-30 max-lg:hidden">
+      <a href="/admin" class="flex items-center gap-2.5 px-6 h-[68px] border-b border-white/10">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-brand-600 text-white">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M9 2h6v2.2c0 .6.2 1.2.6 1.7.9 1 1.4 2.4 1.4 3.8V19a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3V9.7c0-1.4.5-2.8 1.4-3.8.4-.5.6-1.1.6-1.7V2z"/></svg>
+        </span>
+        <div class="leading-tight">
+          <p class="font-extrabold tracking-tightest">AQUA</p>
+          <p class="text-[11px] text-white/40">Bảng điều khiển</p>
+        </div>
+      </a>
+      <nav class="flex-1 p-3.5 space-y-1 text-sm overflow-y-auto no-scrollbar">
+        <%
+          const items = [
+            ['/admin', 'Tổng quan', 'M3 12l9-9 9 9M5 10v10h14V10'],
+            ['/admin/orders', 'Đơn hàng', 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0'],
+            ['/admin/products', 'Sản phẩm', 'M20 7 12 3 4 7m16 0-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+            ['/admin/categories', 'Danh mục', 'M4 6h16M4 12h16M4 18h10'],
+            ['/admin/brands', 'Thương hiệu', 'M12 2l2.5 7h7l-5.5 4 2 7-6-4.5L6 22l2-7-5.5-4h7z'],
+            ['/admin/coupons', 'Mã giảm giá', 'M9 5H5a2 2 0 0 0-2 2v3a2 2 0 0 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 1 0-4V7a2 2 0 0 0-2-2h-4m-6 0v14m0-14 6 14'],
+            ['/admin/reviews', 'Đánh giá', 'M12 2l2.5 5.1 5.6.8-4 4 1 5.6L12 20l-5.1 2.5 1-5.6-4-4 5.6-.8z'],
+            ['/admin/users', 'Người dùng', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8m13 10v-2a4 4 0 0 0-3-3.9'],
+            ['/admin/banner', 'Giao diện', 'M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6'],
+          ];
+          const isActive = (href) => href === '/admin' ? currentPath === '/admin' : currentPath.startsWith(href);
+        %>
+        <% items.forEach(([href, label, icon]) => { %>
+          <a href="<%= href %>" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition <%= isActive(href) ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white' %>">
+            <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="<%= icon %>"/></svg>
+            <%= label %>
+          </a>
+        <% }) %>
+      </nav>
+      <div class="p-3.5 border-t border-white/10 space-y-1">
+        <a href="/" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-white/55 hover:bg-white/5 hover:text-white transition">
+          <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M19 12H5m0 0 7 7m-7-7 7-7"/></svg>
+          Về trang bán hàng
+        </a>
+        <form action="/logout" method="POST">
+          <button class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-white/55 hover:bg-white/5 hover:text-white transition">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9"/></svg>
+            Đăng xuất
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 lg:ml-64 min-w-0">
+      <header class="bg-white/85 backdrop-blur border-b border-black/5 h-[68px] flex items-center px-6 sticky top-0 z-20">
+        <div>
+          <h1 class="font-bold text-lg tracking-tight leading-none"><%= title %></h1>
+        </div>
+        <div class="ml-auto flex items-center gap-3">
+          <div class="text-right leading-tight max-sm:hidden">
+            <p class="text-sm font-semibold"><%= currentUser.name %></p>
+            <p class="text-[11px] text-stone-400">Quản trị viên</p>
+          </div>
+          <span class="w-9 h-9 rounded-full bg-brand-600 text-white font-bold flex items-center justify-center text-sm">
+            <%= currentUser.name.charAt(0).toUpperCase() %>
+          </span>
+        </div>
+      </header>
+
+      <!-- Nav mobile -->
+      <nav class="lg:hidden bg-white border-b border-black/5 px-4 py-2 flex gap-1 overflow-x-auto no-scrollbar text-sm">
+        <% ['Tổng quan|/admin','Đơn hàng|/admin/orders','Sản phẩm|/admin/products','Danh mục|/admin/categories','Thương hiệu|/admin/brands','Mã giảm|/admin/coupons','Đánh giá|/admin/reviews','Người dùng|/admin/users','Giao diện|/admin/banner'].forEach(x => { const [l,h]=x.split('|'); %>
+          <a href="<%= h %>" class="px-3 py-1.5 rounded-full whitespace-nowrap font-medium <%= (h==='/admin'?currentPath==='/admin':currentPath.startsWith(h)) ? 'bg-ink text-white' : 'text-stone-600 hover:bg-sand' %>"><%= l %></a>
+        <% }) %>
+      </nav>
+
+      <% if (flash) { %>
+        <div id="flash" class="fixed top-24 right-4 z-50 max-w-sm rounded-2xl shadow-xl shadow-black/10 px-4 py-3.5 text-sm font-medium text-white <%= flash.type === 'error' ? 'bg-accent-600' : 'bg-brand-700' %>">
+          <%= flash.message %>
+        </div>
+        <script>setTimeout(() => { const f = document.getElementById('flash'); if (f) { f.style.transition = 'opacity .4s'; f.style.opacity = '0'; setTimeout(() => f.remove(), 400); } }, 3200);</script>
+      <% } %>
+
+      <main class="p-6 lg:p-8">
+        <%- body %>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

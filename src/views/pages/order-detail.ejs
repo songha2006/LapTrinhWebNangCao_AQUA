@@ -1,0 +1,112 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <a href="/orders" class="text-sm text-stone-500 hover:text-brand-600">&larr; Đơn hàng của tôi</a>
+
+  <div class="flex flex-wrap items-center justify-between gap-3 mt-3 mb-6">
+    <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Đơn hàng #<%= order.id %></h1>
+    <%- include('../partials/order-status', { status: order.status }) %>
+  </div>
+
+  <!-- Tiến trình đơn -->
+  <% if (order.status !== 'cancelled') { %>
+    <%
+      const steps = ['pending', 'confirmed', 'shipping', 'completed'];
+      const stepNames = ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao', 'Hoàn thành'];
+      const idx = steps.indexOf(order.status);
+    %>
+    <div class="bg-white rounded-2xl border border-stone-200 p-6 mb-6">
+      <div class="flex items-center">
+        <% steps.forEach((s, i) => { %>
+          <div class="flex flex-col items-center flex-1 relative">
+            <% if (i > 0) { %>
+              <div class="absolute top-3.5 right-1/2 w-full h-0.5 <%= i <= idx ? 'bg-brand-500' : 'bg-stone-200' %>"></div>
+            <% } %>
+            <span class="relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold <%= i <= idx ? 'bg-brand-600 text-white' : 'bg-stone-200 text-stone-500' %>">
+              <%= i < idx ? '✓' : i + 1 %>
+            </span>
+            <p class="text-xs mt-2 text-center <%= i <= idx ? 'font-semibold text-brand-700' : 'text-stone-400' %>"><%= stepNames[i] %></p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-2xl border border-stone-200 p-5">
+      <h2 class="font-semibold mb-3">Thông tin giao hàng</h2>
+      <dl class="text-sm space-y-1.5 text-stone-600">
+        <div class="flex gap-2"><dt class="text-stone-400 w-24 shrink-0">Người nhận</dt><dd class="font-medium text-ink"><%= order.receiver_name %></dd></div>
+        <div class="flex gap-2"><dt class="text-stone-400 w-24 shrink-0">Điện thoại</dt><dd><%= order.phone %></dd></div>
+        <div class="flex gap-2"><dt class="text-stone-400 w-24 shrink-0">Địa chỉ</dt><dd><%= order.address %></dd></div>
+        <% if (order.note) { %>
+          <div class="flex gap-2"><dt class="text-stone-400 w-24 shrink-0">Ghi chú</dt><dd><%= order.note %></dd></div>
+        <% } %>
+      </dl>
+    </div>
+    <div class="bg-white rounded-2xl border border-stone-200 p-5">
+      <h2 class="font-semibold mb-3">Thanh toán</h2>
+      <dl class="text-sm space-y-1.5 text-stone-600">
+        <div class="flex gap-2">
+          <dt class="text-stone-400 w-24 shrink-0">Hình thức</dt>
+          <dd class="font-medium text-ink"><%= order.payment_method === 'vnpay' ? 'VNPay' : 'Thanh toán khi nhận hàng (COD)' %></dd>
+        </div>
+        <div class="flex gap-2">
+          <dt class="text-stone-400 w-24 shrink-0">Trạng thái</dt>
+          <dd>
+            <% if (order.payment_status === 'paid') { %>
+              <span class="text-brand-600 font-semibold">Đã thanh toán</span>
+            <% } else { %>
+              <span class="text-amber-600 font-semibold">Chưa thanh toán</span>
+            <% } %>
+          </dd>
+        </div>
+        <div class="flex gap-2"><dt class="text-stone-400 w-24 shrink-0">Ngày đặt</dt><dd><%= new Date(order.created_at).toLocaleString('vi-VN') %></dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-stone-200 divide-y divide-stone-100 mb-6">
+    <% order.items.forEach(item => { %>
+      <div class="flex gap-4 p-4 items-center">
+        <div class="w-16 h-16 rounded-xl overflow-hidden bg-stone-50 border border-stone-100 shrink-0">
+          <img src="<%= item.variant ? (item.variant.image || item.variant.Product.thumbnail) : '' %>" alt="" class="w-full h-full object-cover">
+        </div>
+        <div class="flex-1 min-w-0">
+          <% if (item.variant && item.variant.Product) { %>
+            <a href="/products/<%= item.variant.Product.slug %>" class="font-semibold text-sm hover:text-brand-700"><%= item.variant.Product.name %></a>
+            <p class="text-xs text-stone-500 mt-0.5"><%= item.variant.color %> &middot; <%= item.variant.capacity %>ml</p>
+          <% } else { %>
+            <p class="font-semibold text-sm text-stone-400">Sản phẩm không còn tồn tại</p>
+          <% } %>
+        </div>
+        <div class="text-right shrink-0">
+          <p class="text-sm"><%= vnd(item.price) %> &times; <%= item.quantity %></p>
+          <p class="font-bold text-brand-700 text-sm"><%= vnd(item.price * item.quantity) %></p>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-stone-200 p-5 max-w-sm ml-auto">
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between"><span class="text-stone-500">Tạm tính</span><span class="font-medium"><%= vnd(order.subtotal) %></span></div>
+      <% if (order.discount > 0) { %>
+        <div class="flex justify-between text-brand-600">
+          <span>Giảm giá <%= order.Coupon ? `(${order.Coupon.code})` : '' %></span>
+          <span class="font-medium">-<%= vnd(order.discount) %></span>
+        </div>
+      <% } %>
+      <div class="flex justify-between"><span class="text-stone-500">Vận chuyển</span><span class="font-medium text-brand-600">Miễn phí</span></div>
+    </div>
+    <div class="border-t border-stone-200 mt-3 pt-3 flex justify-between items-center">
+      <span class="font-semibold">Tổng cộng</span>
+      <span class="text-xl font-extrabold text-brand-700"><%= vnd(order.total) %></span>
+    </div>
+  </div>
+
+  <% if (['pending', 'confirmed'].includes(order.status)) { %>
+    <form action="/orders/<%= order.id %>/cancel" method="POST" class="mt-6 text-right"
+          onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">
+      <button class="px-5 py-2.5 rounded-full border border-red-300 text-red-600 text-sm font-semibold hover:bg-red-50">Hủy đơn hàng</button>
+    </form>
+  <% } %>
+</div>

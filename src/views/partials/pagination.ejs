@@ -1,0 +1,24 @@
+<% if (totalPages > 1) { %>
+  <%
+    // Giữ nguyên các tham số lọc hiện tại khi chuyển trang
+    const params = { ...query };
+    const link = (pg) => { params.page = pg; return '?' + new URLSearchParams(params).toString(); };
+  %>
+  <nav class="flex items-center justify-center gap-1 mt-10" aria-label="Phân trang">
+    <% if (page > 1) { %>
+      <a href="<%= link(page - 1) %>" class="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-white hover:border-brand-400">&larr;</a>
+    <% } %>
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <% if (i === page) { %>
+        <span class="px-3.5 py-2 text-sm rounded-lg bg-brand-600 text-white font-semibold"><%= i %></span>
+      <% } else if (Math.abs(i - page) <= 2 || i === 1 || i === totalPages) { %>
+        <a href="<%= link(i) %>" class="px-3.5 py-2 text-sm rounded-lg border border-stone-200 bg-white hover:border-brand-400"><%= i %></a>
+      <% } else if (Math.abs(i - page) === 3) { %>
+        <span class="px-1 text-stone-400">…</span>
+      <% } %>
+    <% } %>
+    <% if (page < totalPages) { %>
+      <a href="<%= link(page + 1) %>" class="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-white hover:border-brand-400">&rarr;</a>
+    <% } %>
+  </nav>
+<% } %>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<defs>
+  <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#2f7d5d" stop-opacity=".72"/>
+    <stop offset=".35" stop-color="#2f7d5d"/>
+    <stop offset=".62" stop-color="#2f7d5d" stop-opacity=".82"/>
+    <stop offset="1" stop-color="#2f7d5d" stop-opacity=".6"/>
+  </linearGradient>
+  <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+    <stop offset=".5" stop-color="#fff" stop-opacity=".45"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+<rect width="600" height="600" fill="#eef4f0"/>
+<ellipse cx="300" cy="520" rx="150" ry="22" fill="#000" opacity=".08"/>
+<rect x="255" y="88" width="90" height="34" rx="10" fill="#2c3138"/>
+<rect x="248" y="118" width="104" height="18" rx="9" fill="#3a4048"/>
+<path d="M225 150 h150 a0 0 0 0 1 0 0 v22 q0 14 8 24 q14 18 14 44 v240 q0 40 -40 40 h-114 q-40 0 -40 -40 v-240 q0 -26 14 -44 q8 -10 8 -24 v-22 z" fill="url(#body)"/>
+<rect x="272" y="150" width="26" height="360" rx="13" fill="url(#shine)"/>
+<rect x="203" y="332" width="194" height="58" fill="#fff" opacity=".92"/>
+<text x="300" y="368" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2c3138" text-anchor="middle" letter-spacing="3">AQUA</text>
+</svg>

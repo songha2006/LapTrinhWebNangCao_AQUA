@@ -1,0 +1,121 @@
+<form action="<%= product ? `/admin/products/${product.id}` : '/admin/products' %>" method="POST" enctype="multipart/form-data"
+      class="grid lg:grid-cols-[1fr_340px] gap-6 items-start max-w-6xl">
+
+  <div class="space-y-6">
+    <div class="bg-white rounded-2xl border border-stone-200 p-6">
+      <h2 class="font-semibold mb-4">Thông tin cơ bản</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Tên sản phẩm</label>
+          <input type="text" name="name" required value="<%= product ? product.name : '' %>"
+                 class="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500">
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1.5">Danh mục</label>
+            <select name="category_id" required class="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-sm bg-white">
+              <% categories.forEach(c => { %>
+                <option value="<%= c.id %>" <%= product && product.category_id === c.id ? 'selected' : '' %>><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5">Thương hiệu</label>
+            <select name="brand_id" required class="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-sm bg-white">
+              <% brands.forEach(b => { %>
+                <option value="<%= b.id %>" <%= product && product.brand_id === b.id ? 'selected' : '' %>><%= b.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1.5">Mô tả</label>
+          <textarea name="description" rows="4"
+                    class="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm outline-none focus:border-brand-500"><%= product ? product.description : '' %></textarea>
+        </div>
+        <label class="flex items-center gap-2 text-sm font-medium">
+          <input type="checkbox" name="is_featured" <%= product && product.is_featured ? 'checked' : '' %> class="accent-brand-600 w-4 h-4">
+          Hiển thị ở mục "Sản phẩm nổi bật"
+        </label>
+      </div>
+    </div>
+
+    <!-- Biến thể -->
+    <div class="bg-white rounded-2xl border border-stone-200 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold">Biến thể (màu / dung tích / giá / kho)</h2>
+        <button type="button" onclick="addVariantRow()" class="text-sm font-semibold text-brand-600 hover:underline">+ Thêm biến thể</button>
+      </div>
+      <div id="variant-rows" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <div class="bg-white rounded-2xl border border-stone-200 p-6">
+      <h2 class="font-semibold mb-4">Ảnh sản phẩm</h2>
+      <div>
+        <label class="block text-sm font-medium mb-1.5">Ảnh đại diện</label>
+        <% if (product && product.thumbnail) { %>
+          <img src="<%= product.thumbnail %>" alt="" class="w-24 h-24 rounded-xl object-cover border border-stone-200 mb-2">
+        <% } %>
+        <input type="file" name="thumbnail" accept="image/*" class="text-sm w-full">
+      </div>
+      <div class="mt-4">
+        <label class="block text-sm font-medium mb-1.5">Ảnh chi tiết (chọn nhiều)</label>
+        <input type="file" name="images" accept="image/*" multiple class="text-sm w-full">
+        <% if (product && product.images && product.images.length) { %>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <% product.images.forEach(img => { %>
+              <div class="relative group">
+                <img src="<%= img.url %>" alt="" class="w-full aspect-square rounded-lg object-cover border border-stone-200">
+                <button type="button"
+                        onclick="if(confirm('Xóa ảnh này?')) { const f=document.createElement('form'); f.method='POST'; f.action='/admin/products/<%= product.id %>/images/<%= img.id %>/delete'; document.body.appendChild(f); f.submit(); }"
+                        class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/90 text-red-500 text-xs font-bold opacity-0 group-hover:opacity-100 transition">&times;</button>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-stone-200 p-6">
+      <button class="w-full py-3 rounded-full bg-brand-600 text-white font-semibold hover:bg-brand-700">
+        <%= product ? 'Lưu thay đổi' : 'Thêm sản phẩm' %>
+      </button>
+      <a href="/admin/products" class="block text-center mt-2 py-2 text-sm text-stone-500 hover:text-brand-600">Hủy</a>
+    </div>
+  </div>
+</form>
+
+<script>
+  let rowIdx = 0;
+  const EXISTING = <%- JSON.stringify(product ? product.variants.map(v => ({
+    id: v.id, color: v.color, color_code: v.color_code || '#888888',
+    capacity: v.capacity, price: v.price, stock: v.stock
+  })) : []) %>;
+
+  function addVariantRow(v) {
+    v = v || { id: '', color: '', color_code: '#417a63', capacity: '', price: '', stock: 0 };
+    const i = rowIdx++;
+    const html = `
+      <div class="grid grid-cols-[1fr_52px_90px_110px_80px_32px] gap-2 items-center" id="vrow-${i}">
+        <input type="hidden" name="variants[${i}][id]" value="${v.id}">
+        <input type="text" name="variants[${i}][color]" value="${v.color}" placeholder="Màu (VD: Đen)" required
+               class="rounded-lg border border-stone-300 px-3 py-2 text-sm">
+        <input type="color" name="variants[${i}][color_code]" value="${v.color_code}"
+               class="h-9 w-full rounded-lg border border-stone-300 cursor-pointer" title="Mã màu">
+        <input type="number" name="variants[${i}][capacity]" value="${v.capacity}" placeholder="ml" required min="1"
+               class="rounded-lg border border-stone-300 px-3 py-2 text-sm">
+        <input type="number" name="variants[${i}][price]" value="${v.price}" placeholder="Giá (₫)" required min="1000" step="1000"
+               class="rounded-lg border border-stone-300 px-3 py-2 text-sm">
+        <input type="number" name="variants[${i}][stock]" value="${v.stock}" placeholder="Kho" required min="0"
+               class="rounded-lg border border-stone-300 px-3 py-2 text-sm">
+        <button type="button" onclick="document.getElementById('vrow-${i}').remove()"
+                class="text-red-400 hover:text-red-600 font-bold text-lg" title="Xóa biến thể">&times;</button>
+      </div>`;
+    document.getElementById('variant-rows').insertAdjacentHTML('beforeend', html);
+  }
+
+  if (EXISTING.length) EXISTING.forEach(addVariantRow);
+  else addVariantRow();
+</script>

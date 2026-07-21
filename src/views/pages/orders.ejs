@@ -1,0 +1,29 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-2xl md:text-3xl font-bold tracking-tight mb-6">Đơn hàng của tôi</h1>
+
+  <% if (orders.length === 0) { %>
+    <div class="bg-white rounded-2xl border border-stone-200 py-20 text-center">
+      <p class="font-semibold">Bạn chưa có đơn hàng nào</p>
+      <a href="/products" class="inline-block mt-5 px-6 py-3 rounded-full bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">Mua sắm ngay</a>
+    </div>
+  <% } else { %>
+    <div class="space-y-4">
+      <% orders.forEach(o => { %>
+        <a href="/orders/<%= o.id %>" class="block bg-white rounded-2xl border border-stone-200 p-5 hover:border-brand-300 transition">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="font-bold">Đơn #<%= o.id %></p>
+              <p class="text-xs text-stone-500 mt-0.5">
+                <%= new Date(o.created_at).toLocaleString('vi-VN') %> &middot; <%= o.items.length %> sản phẩm
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <%- include('../partials/order-status', { status: o.status }) %>
+              <p class="font-bold text-brand-700"><%= vnd(o.total) %></p>
+            </div>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

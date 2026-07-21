@@ -1,0 +1,26 @@
+<%
+  const prices = p.variants.map(v => v.price);
+  const minP = prices.length ? Math.min(...prices) : 0;
+  const maxP = prices.length ? Math.max(...prices) : 0;
+%>
+<a href="/products/<%= p.slug %>" class="group flex flex-col">
+  <div class="relative aspect-[4/5] overflow-hidden rounded-2xl bg-white border border-black/5">
+    <img src="<%= p.thumbnail %>" alt="<%= p.name %>" loading="lazy"
+         class="w-full h-full object-cover group-hover:scale-[1.05] transition duration-500 ease-out">
+    <% if (p.is_featured) { %>
+      <span class="absolute top-3 left-3 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/90 u-blur text-brand-800">Nổi bật</span>
+    <% } %>
+    <div class="absolute bottom-3 right-3 flex -space-x-1.5">
+      <% p.variants.slice(0, 4).forEach(v => { %>
+        <span class="w-4 h-4 rounded-full border-2 border-white shadow-sm" style="background:<%= v.color_code || '#999' %>" title="<%= v.color %>"></span>
+      <% }) %>
+    </div>
+  </div>
+  <div class="pt-3 px-0.5">
+    <p class="text-[11px] uppercase tracking-wide text-stone-400 font-medium mb-1"><%= p.Brand ? p.Brand.name : '' %></p>
+    <h3 class="font-semibold text-[15px] leading-snug line-clamp-2 min-h-[2.6rem] group-hover:text-brand-700 transition"><%= p.name %></h3>
+    <p class="mt-1.5 font-bold text-ink">
+      <%= vnd(minP) %><% if (maxP > minP) { %><span class="text-stone-400 font-normal text-sm"> trở lên</span><% } %>
+    </p>
+  </div>
+</a>

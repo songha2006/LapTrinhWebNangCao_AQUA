@@ -1,0 +1,63 @@
+<form method="GET" class="flex gap-2 mb-5 max-w-md">
+  <input type="text" name="q" value="<%= query.q || '' %>" placeholder="Tìm theo tên hoặc email..."
+         class="flex-1 rounded-xl border border-stone-300 px-4 py-2 text-sm bg-white outline-none focus:border-brand-500">
+  <button class="px-4 py-2 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-700">Tìm</button>
+</form>
+
+<div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+  <table class="w-full text-sm min-w-[720px]">
+    <thead>
+      <tr class="text-left text-stone-400 border-b border-stone-100">
+        <th class="p-4 font-medium">Người dùng</th>
+        <th class="p-4 font-medium">Điện thoại</th>
+        <th class="p-4 font-medium">Vai trò</th>
+        <th class="p-4 font-medium">Số đơn</th>
+        <th class="p-4 font-medium">Trạng thái</th>
+        <th class="p-4 font-medium text-right">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-stone-50">
+      <% users.forEach(u => { %>
+        <tr class="hover:bg-stone-50">
+          <td class="p-4">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm shrink-0">
+                <%= u.name.charAt(0).toUpperCase() %>
+              </span>
+              <div>
+                <p class="font-semibold"><%= u.name %></p>
+                <p class="text-xs text-stone-400"><%= u.email %></p>
+              </div>
+            </div>
+          </td>
+          <td class="p-4"><%= u.phone || '-' %></td>
+          <td class="p-4">
+            <% if (u.role === 'admin') { %>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-800 text-white">Admin</span>
+            <% } else { %>
+              <span class="text-xs text-stone-500">Khách hàng</span>
+            <% } %>
+          </td>
+          <td class="p-4"><%= u.Orders.length %></td>
+          <td class="p-4">
+            <% if (u.is_locked) { %>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">Đã khóa</span>
+            <% } else { %>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-200">Hoạt động</span>
+            <% } %>
+          </td>
+          <td class="p-4 text-right">
+            <% if (u.role !== 'admin') { %>
+              <form action="/admin/users/<%= u.id %>/toggle-lock" method="POST" class="inline"
+                    onsubmit="return confirm('<%= u.is_locked ? 'Mở khóa' : 'Khóa' %> tài khoản <%= u.email %>?')">
+                <button class="text-xs font-semibold <%= u.is_locked ? 'text-brand-600' : 'text-red-500' %> hover:underline">
+                  <%= u.is_locked ? 'Mở khóa' : 'Khóa' %>
+                </button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

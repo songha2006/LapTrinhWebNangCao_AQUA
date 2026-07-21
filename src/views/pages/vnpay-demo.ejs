@@ -1,0 +1,23 @@
+<div class="max-w-md mx-auto px-4 py-14">
+  <div class="bg-white rounded-3xl border border-stone-200 p-8 text-center">
+    <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center">
+      <span class="font-extrabold text-sky-600 text-lg">VN</span>
+    </div>
+    <h1 class="text-xl font-bold tracking-tight mt-4">Cổng thanh toán VNPay</h1>
+    <p class="text-xs text-stone-400 mt-1">Chế độ giả lập (chưa cấu hình VNP_TMN_CODE trong .env)</p>
+
+    <div class="bg-stone-50 rounded-2xl p-5 my-6 text-sm">
+      <div class="flex justify-between mb-2"><span class="text-stone-500">Đơn hàng</span><span class="font-semibold">#<%= order.id %></span></div>
+      <div class="flex justify-between"><span class="text-stone-500">Số tiền</span><span class="font-extrabold text-lg text-brand-700"><%= vnd(order.total) %></span></div>
+    </div>
+
+    <form action="/payment/vnpay-demo/<%= order.id %>" method="POST" class="space-y-3">
+      <button name="result" value="success" class="w-full py-3 rounded-full bg-brand-600 text-white font-semibold hover:bg-brand-700">Thanh toán thành công</button>
+      <button name="result" value="fail" class="w-full py-3 rounded-full border border-stone-300 text-stone-600 font-medium hover:border-red-300 hover:text-red-600">Hủy thanh toán</button>
+    </form>
+
+    <p class="text-xs text-stone-400 mt-5 leading-relaxed">
+      Khi cấu hình VNP_TMN_CODE và VNP_HASH_SECRET thật (đăng ký tại sandbox.vnpayment.vn), hệ thống sẽ chuyển hướng đến cổng VNPay sandbox thật với chữ ký HMAC-SHA512.
+    </p>
+  </div>
+</div>

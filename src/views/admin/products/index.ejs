@@ -1,0 +1,59 @@
+<div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+  <form method="GET" class="flex gap-2">
+    <input type="text" name="q" value="<%= query.q || '' %>" placeholder="Tìm sản phẩm..."
+           class="rounded-xl border border-stone-300 px-4 py-2 text-sm bg-white outline-none focus:border-brand-500 w-64">
+    <button class="px-4 py-2 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-700">Tìm</button>
+  </form>
+  <a href="/admin/products/create" class="px-4 py-2 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">+ Thêm sản phẩm</a>
+</div>
+
+<div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+  <table class="w-full text-sm min-w-[760px]">
+    <thead>
+      <tr class="text-left text-stone-400 border-b border-stone-100">
+        <th class="p-4 font-medium">Sản phẩm</th>
+        <th class="p-4 font-medium">Danh mục</th>
+        <th class="p-4 font-medium">Thương hiệu</th>
+        <th class="p-4 font-medium">Biến thể</th>
+        <th class="p-4 font-medium">Tồn kho</th>
+        <th class="p-4 font-medium">Nổi bật</th>
+        <th class="p-4 font-medium text-right">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-stone-50">
+      <% products.forEach(p => { %>
+        <tr class="hover:bg-stone-50">
+          <td class="p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-lg overflow-hidden bg-stone-50 border border-stone-100 shrink-0">
+                <img src="<%= p.thumbnail %>" alt="" class="w-full h-full object-cover">
+              </div>
+              <div>
+                <p class="font-semibold"><%= p.name %></p>
+                <p class="text-xs text-stone-400">#<%= p.id %></p>
+              </div>
+            </div>
+          </td>
+          <td class="p-4"><%= p.Category ? p.Category.name : '' %></td>
+          <td class="p-4"><%= p.Brand ? p.Brand.name : '' %></td>
+          <td class="p-4"><%= p.variants.length %></td>
+          <td class="p-4">
+            <% const totalStock = p.variants.reduce((s, v) => s + v.stock, 0); %>
+            <span class="<%= totalStock === 0 ? 'text-red-600 font-semibold' : totalStock < 10 ? 'text-amber-600 font-semibold' : '' %>"><%= totalStock %></span>
+          </td>
+          <td class="p-4"><%= p.is_featured ? '★' : '' %></td>
+          <td class="p-4 text-right whitespace-nowrap">
+            <a href="/products/<%= p.slug %>" target="_blank" class="text-stone-400 hover:text-brand-600 text-xs font-medium mr-2">Xem</a>
+            <a href="/admin/products/<%= p.id %>/edit" class="text-brand-600 hover:underline text-xs font-semibold mr-2">Sửa</a>
+            <form action="/admin/products/<%= p.id %>/delete" method="POST" class="inline"
+                  onsubmit="return confirm('Xóa sản phẩm <%= p.name.replace(/'/g, '') %>?')">
+              <button class="text-red-500 hover:underline text-xs font-semibold">Xóa</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../../partials/pagination', { page, totalPages, query }) %>

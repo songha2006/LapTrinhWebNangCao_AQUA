@@ -1,0 +1,122 @@
+<!-- Hero -->
+<section class="relative overflow-hidden bg-brand-900 text-white">
+  <div class="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-brand-700/40 blur-3xl"></div>
+  <div class="absolute -left-20 bottom-0 w-72 h-72 rounded-full bg-accent-500/10 blur-3xl"></div>
+  <div class="relative max-w-7xl mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <span class="inline-flex items-center gap-2 text-[13px] font-medium text-brand-200 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent-500"></span>
+        Chính hãng · Bảo hành 12 tháng
+      </span>
+      <h1 class="mt-6 text-5xl md:text-6xl font-extrabold tracking-tightest leading-[0.98]">
+        Giữ nóng 12 giờ.<br>
+        <span class="text-brand-300">Giữ lạnh 24 giờ.</span>
+      </h1>
+      <p class="mt-5 text-brand-100/90 leading-relaxed max-w-md text-[15px]">
+        Bộ sưu tập bình giữ nhiệt cao cấp từ Thermos, Lock&amp;Lock, Zojirushi, Hydro Flask và Stanley.
+      </p>
+      <div class="mt-8 flex items-center gap-3">
+        <a href="/products" class="px-7 py-3.5 rounded-full bg-accent-500 text-white font-semibold hover:bg-accent-600 active:scale-[0.98] transition shadow-lg shadow-accent-500/20">Mua ngay</a>
+        <a href="#noi-bat" class="px-7 py-3.5 rounded-full border border-white/20 text-white font-medium hover:bg-white/5 transition">Xem bộ sưu tập</a>
+      </div>
+      <div class="mt-10 flex items-center gap-8">
+        <div><p class="text-2xl font-extrabold">7+</p><p class="text-xs text-brand-300">Thương hiệu</p></div>
+        <div class="w-px h-8 bg-white/15"></div>
+        <div><p class="text-2xl font-extrabold">20+</p><p class="text-xs text-brand-300">Mẫu sản phẩm</p></div>
+        <div class="w-px h-8 bg-white/15"></div>
+        <div><p class="text-2xl font-extrabold">4.9★</p><p class="text-xs text-brand-300">Đánh giá</p></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <% featured.slice(0, 2).forEach((p, i) => { %>
+        <a href="/products/<%= p.slug %>" class="group rounded-3xl overflow-hidden bg-white/5 border border-white/10 <%= i === 0 ? 'mt-10' : '' %> hover:border-white/25 transition">
+          <img src="<%= heroImages[i] || p.thumbnail %>" alt="<%= p.name %>" style="<%= heroStyles[i] %>" class="w-full aspect-[4/5] object-cover group-hover:scale-[1.04] transition duration-500">
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- Cam kết -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6">
+    <% const commits = [
+      ['M20 7 9 18l-5-5', 'Chính hãng 100%', 'Nhập khẩu, tem chống giả'],
+      ['M3 12a9 9 0 1 0 3-6.7 M3 3v5h5', 'Đổi trả 7 ngày', 'Không hài lòng, hoàn tiền'],
+      ['M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6z', 'Bảo hành 12 tháng', 'Bảo hành chính hãng'],
+      ['M5 8h14M5 8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2M5 8V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2', 'Giao nhanh toàn quốc', 'Nhận hàng 2-4 ngày'],
+    ]; %>
+    <% commits.forEach(([path, title, desc]) => { %>
+      <div class="flex items-start gap-3">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-brand-50 text-brand-700 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path d="<%= path %>"/></svg>
+        </span>
+        <div>
+          <p class="font-semibold text-sm"><%= title %></p>
+          <p class="text-xs text-stone-500 mt-0.5"><%= desc %></p>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<!-- Sản phẩm nổi bật -->
+<section id="noi-bat" class="max-w-7xl mx-auto px-4 py-12">
+  <div class="flex items-end justify-between mb-8">
+    <div>
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tightest">Sản phẩm nổi bật</h2>
+      <p class="text-stone-500 mt-1.5">Những mẫu được yêu thích nhất tại AQUA</p>
+    </div>
+    <a href="/products" class="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:gap-2.5 transition-all">Xem tất cả <span>&rarr;</span></a>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-8">
+    <% featured.forEach(p => { %>
+      <%- include('../partials/product-card', { p }) %>
+    <% }) %>
+  </div>
+</section>
+
+<!-- Banner lifestyle full-width: ảnh tràn toàn bộ, chữ đè lên trên -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="relative overflow-hidden rounded-[28px] bg-brand-900 text-white min-h-[360px] md:min-h-[420px] flex items-center">
+    <% const bannerSrc = bannerImage || (featured[2] && featured[2].thumbnail); %>
+    <% if (bannerSrc) { %>
+      <img src="<%= bannerSrc %>" alt="" style="<%= bannerStyle %>" class="absolute inset-0 w-full h-full object-cover">
+    <% } %>
+    <!-- Lớp phủ tối dần từ trái để chữ luôn đọc rõ -->
+    <div class="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-900/85 to-brand-900/25 md:to-transparent"></div>
+    <div class="relative p-10 md:p-14 max-w-lg">
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tightest leading-tight">Đồng hành mọi hành trình</h2>
+      <p class="mt-4 text-brand-100/90 leading-relaxed max-w-md">Từ bàn làm việc đến chuyến leo núi cuối tuần, một chiếc bình AQUA giữ đồ uống của bạn ở đúng nhiệt độ, suốt cả ngày dài.</p>
+      <a href="/products?category=binh-the-thao" class="inline-block mt-7 px-6 py-3 rounded-full bg-white text-brand-800 font-semibold hover:bg-brand-50 transition">Khám phá dòng thể thao</a>
+    </div>
+  </div>
+</section>
+
+<!-- Mới về kệ -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="flex items-end justify-between mb-8">
+    <div>
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tightest">Mới về kệ</h2>
+      <p class="text-stone-500 mt-1.5">Vừa cập bến, số lượng có hạn</p>
+    </div>
+    <a href="/products" class="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:gap-2.5 transition-all">Xem tất cả <span>&rarr;</span></a>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-x-5 gap-y-8">
+    <% newest.forEach(p => { %>
+      <%- include('../partials/product-card', { p }) %>
+    <% }) %>
+  </div>
+</section>
+
+<!-- Mã giảm giá -->
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="rounded-[28px] border-2 border-dashed border-accent-500/30 bg-accent-500/[0.04] px-8 py-12 md:px-14 md:py-14 grid md:grid-cols-[1fr_auto] gap-6 items-center">
+    <div>
+      <p class="text-accent-600 font-semibold text-sm mb-2">Ưu đãi thành viên mới</p>
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tightest">Nhập mã <span class="bg-accent-500 text-white rounded-lg px-2.5 py-1">WELCOME10</span> giảm ngay 10%</h2>
+      <p class="mt-3 text-stone-500">Áp dụng cho đơn hàng đầu tiên từ 300.000₫.</p>
+    </div>
+    <a href="/products" class="px-7 py-3.5 rounded-full bg-brand-700 text-white font-semibold hover:bg-brand-800 active:scale-[0.98] transition justify-self-start md:justify-self-end">Chọn bình của bạn</a>
+  </div>
+</section>

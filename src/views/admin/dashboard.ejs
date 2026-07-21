@@ -1,0 +1,135 @@
+<!-- Thẻ thống kê -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-brand-800 text-white rounded-2xl p-5 relative overflow-hidden">
+    <div class="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/5"></div>
+    <div class="relative">
+      <p class="text-sm text-brand-100">Doanh thu hôm nay</p>
+      <p class="text-2xl font-extrabold mt-1.5 tracking-tightest"><%= vnd(revenueToday) %></p>
+    </div>
+  </div>
+  <div class="bg-white rounded-2xl border border-black/5 p-5">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-stone-500">Doanh thu tháng này</p>
+      <span class="grid place-items-center w-8 h-8 rounded-lg bg-brand-50 text-brand-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></span>
+    </div>
+    <p class="text-2xl font-extrabold mt-1.5 tracking-tightest text-brand-700"><%= vnd(revenueMonth) %></p>
+  </div>
+  <div class="bg-white rounded-2xl border border-black/5 p-5">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-stone-500">Đơn chờ xác nhận</p>
+      <span class="grid place-items-center w-8 h-8 rounded-lg bg-accent-500/10 text-accent-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+    </div>
+    <p class="text-2xl font-extrabold mt-1.5"><%= pendingCount %></p>
+    <a href="/admin/orders?status=pending" class="text-xs font-medium text-accent-600 hover:underline">Xử lý ngay &rarr;</a>
+  </div>
+  <div class="bg-white rounded-2xl border border-black/5 p-5">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-stone-500">Khách hàng</p>
+      <span class="grid place-items-center w-8 h-8 rounded-lg bg-brand-50 text-brand-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg></span>
+    </div>
+    <p class="text-2xl font-extrabold mt-1.5"><%= userCount %></p>
+    <p class="text-xs text-stone-400"><%= productCount %> sản phẩm đang bán</p>
+  </div>
+</div>
+
+<!-- Biểu đồ -->
+<div class="grid lg:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white rounded-2xl border border-stone-200 p-5">
+    <h2 class="font-semibold mb-4">Doanh thu 14 ngày gần nhất</h2>
+    <canvas id="chart-day" height="240"></canvas>
+  </div>
+  <div class="bg-white rounded-2xl border border-stone-200 p-5">
+    <h2 class="font-semibold mb-4">Doanh thu 6 tháng gần nhất</h2>
+    <canvas id="chart-month" height="240"></canvas>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-[1fr_380px] gap-4">
+  <!-- Đơn mới -->
+  <div class="bg-white rounded-2xl border border-stone-200 p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold">Đơn hàng mới nhất</h2>
+      <a href="/admin/orders" class="text-sm text-brand-600 hover:underline">Xem tất cả</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-stone-400 border-b border-stone-100">
+            <th class="pb-2 font-medium">Mã</th>
+            <th class="pb-2 font-medium">Khách hàng</th>
+            <th class="pb-2 font-medium">Tổng tiền</th>
+            <th class="pb-2 font-medium">Trạng thái</th>
+            <th class="pb-2 font-medium">Ngày</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-50">
+          <% recentOrders.forEach(o => { %>
+            <tr class="hover:bg-stone-50">
+              <td class="py-2.5"><a href="/admin/orders/<%= o.id %>" class="font-semibold text-brand-600 hover:underline">#<%= o.id %></a></td>
+              <td class="py-2.5"><%= o.User ? o.User.name : '?' %></td>
+              <td class="py-2.5 font-medium"><%= vnd(o.total) %></td>
+              <td class="py-2.5"><%- include('../partials/order-status', { status: o.status }) %></td>
+              <td class="py-2.5 text-stone-400 text-xs"><%= new Date(o.created_at).toLocaleDateString('vi-VN') %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bán chạy -->
+  <div class="bg-white rounded-2xl border border-stone-200 p-5">
+    <h2 class="font-semibold mb-4">Bán chạy nhất</h2>
+    <div class="space-y-3">
+      <% topProducts.forEach((tp, i) => { %>
+        <div class="flex items-center gap-3">
+          <span class="w-6 text-center font-bold text-stone-300"><%= i + 1 %></span>
+          <div class="w-11 h-11 rounded-lg overflow-hidden bg-stone-50 border border-stone-100 shrink-0">
+            <img src="<%= tp.product.thumbnail %>" alt="" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate"><%= tp.product.name %></p>
+            <p class="text-xs text-stone-400"><%= tp.sold %> đã bán &middot; <%= vnd(tp.revenue) %></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<script>
+  const brand = '#1d4634';
+  const brandLight = 'rgba(29,70,52,0.10)';
+  const accent = '#e2612f';
+  new Chart(document.getElementById('chart-day'), {
+    type: 'line',
+    data: {
+      labels: <%- JSON.stringify(dayLabels) %>,
+      datasets: [{
+        label: 'Doanh thu (₫)',
+        data: <%- JSON.stringify(dayData) %>,
+        borderColor: brand, backgroundColor: brandLight,
+        fill: true, tension: 0.35, pointRadius: 3,
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => (v / 1e6).toFixed(1) + 'tr' } } },
+    },
+  });
+  new Chart(document.getElementById('chart-month'), {
+    type: 'bar',
+    data: {
+      labels: <%- JSON.stringify(monthLabels) %>,
+      datasets: [{
+        label: 'Doanh thu (₫)',
+        data: <%- JSON.stringify(monthData) %>,
+        backgroundColor: accent, borderRadius: 8, maxBarThickness: 46,
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => (v / 1e6).toFixed(0) + 'tr' } } },
+    },
+  });
+</script>

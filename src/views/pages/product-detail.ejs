@@ -1,0 +1,208 @@
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-stone-500 mb-6">
+    <a href="/" class="hover:text-brand-600">Trang chủ</a>
+    <span class="mx-1.5">/</span>
+    <a href="/products?category=<%= product.Category.slug %>" class="hover:text-brand-600"><%= product.Category.name %></a>
+    <span class="mx-1.5">/</span>
+    <span class="text-ink font-medium"><%= product.name %></span>
+  </nav>
+
+  <div class="grid md:grid-cols-2 gap-10">
+    <!-- Gallery -->
+    <div>
+      <div class="rounded-3xl overflow-hidden bg-white border border-stone-200">
+        <img id="main-image" src="<%= product.thumbnail %>" alt="<%= product.name %>" class="w-full aspect-square object-cover">
+      </div>
+      <div class="flex gap-3 mt-3 overflow-x-auto no-scrollbar">
+        <% product.images.forEach(img => { %>
+          <button type="button" onclick="document.getElementById('main-image').src='<%= img.url %>'"
+                  class="w-20 h-20 shrink-0 rounded-xl overflow-hidden border border-stone-200 hover:border-brand-500">
+            <img src="<%= img.url %>" alt="" class="w-full h-full object-cover">
+          </button>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Thông tin -->
+    <div>
+      <p class="text-sm text-stone-500"><%= product.Brand.name %></p>
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight mt-1"><%= product.name %></h1>
+
+      <div class="flex items-center gap-2 mt-2">
+        <%- include('../partials/stars', { value: avgRating }) %>
+        <span class="text-sm text-stone-500">
+          <%= avgRating ? avgRating.toFixed(1) : 'Chưa có' %> (<%= product.reviews.length %> đánh giá)
+        </span>
+      </div>
+
+      <p id="price" class="text-3xl font-extrabold text-brand-700 mt-4"></p>
+      <p id="stock-line" class="text-sm text-stone-500 mt-1"></p>
+
+      <form action="/cart/add" method="POST" class="mt-6 space-y-5">
+        <input type="hidden" name="variant_id" id="variant-input">
+
+        <div>
+          <p class="text-sm font-semibold mb-2">Màu sắc: <span id="color-label" class="font-normal text-stone-500"></span></p>
+          <div id="color-options" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div>
+          <p class="text-sm font-semibold mb-2">Dung tích</p>
+          <div id="capacity-options" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="flex items-center rounded-full border border-stone-300 overflow-hidden">
+            <button type="button" onclick="changeQty(-1)" class="px-4 py-2.5 hover:bg-stone-100 font-bold">&minus;</button>
+            <input type="number" name="qty" id="qty" value="1" min="1" class="w-14 text-center outline-none py-2.5">
+            <button type="button" onclick="changeQty(1)" class="px-4 py-2.5 hover:bg-stone-100 font-bold">+</button>
+          </div>
+          <button id="add-btn" class="flex-1 py-3 rounded-full bg-accent-500 text-white font-semibold hover:bg-accent-600 active:scale-[0.98] transition disabled:bg-stone-300 disabled:cursor-not-allowed shadow-lg shadow-accent-500/20">
+            Thêm vào giỏ
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-8 border-t border-stone-200 pt-6">
+        <h2 class="font-semibold mb-2">Mô tả sản phẩm</h2>
+        <p class="text-stone-600 leading-relaxed"><%= product.description %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Đánh giá -->
+  <section id="reviews" class="mt-14 max-w-3xl">
+    <h2 class="text-xl md:text-2xl font-bold tracking-tight mb-5">Đánh giá từ người mua (<%= product.reviews.length %>)</h2>
+
+    <% if (currentUser && canReview && !hasReviewed) { %>
+      <form action="/products/<%= product.id %>/reviews" method="POST" class="bg-white rounded-2xl border border-stone-200 p-5 mb-6">
+        <p class="font-semibold text-sm mb-2">Viết đánh giá của bạn</p>
+        <div class="flex items-center gap-1 mb-3" id="star-picker">
+          <% for (let s = 1; s <= 5; s++) { %>
+            <button type="button" data-star="<%= s %>" class="star-btn text-2xl leading-none text-stone-300 hover:scale-110 transition">&#9733;</button>
+          <% } %>
+          <input type="hidden" name="rating" id="rating-input" value="5">
+        </div>
+        <textarea name="comment" rows="3" required minlength="10" placeholder="Sản phẩm dùng thực tế thế nào? (tối thiểu 10 ký tự)"
+                  class="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm outline-none focus:border-brand-500"></textarea>
+        <button class="mt-3 px-5 py-2.5 rounded-full bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">Gửi đánh giá</button>
+      </form>
+    <% } else if (currentUser && hasReviewed) { %>
+      <p class="text-sm text-stone-500 bg-white border border-stone-200 rounded-xl px-4 py-3 mb-6">Bạn đã đánh giá sản phẩm này. Cảm ơn bạn!</p>
+    <% } else if (currentUser) { %>
+      <p class="text-sm text-stone-500 bg-white border border-stone-200 rounded-xl px-4 py-3 mb-6">Chỉ khách đã mua và nhận hàng thành công mới có thể đánh giá.</p>
+    <% } else { %>
+      <p class="text-sm text-stone-500 bg-white border border-stone-200 rounded-xl px-4 py-3 mb-6">
+        <a href="/login" class="text-brand-600 font-medium hover:underline">Đăng nhập</a> để đánh giá sản phẩm.
+      </p>
+    <% } %>
+
+    <% if (product.reviews.length === 0) { %>
+      <p class="text-stone-500 text-sm">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+    <% } %>
+    <div class="space-y-4">
+      <% product.reviews.forEach(r => { %>
+        <div class="bg-white rounded-2xl border border-stone-200 p-5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm">
+                <%= r.User.name.charAt(0).toUpperCase() %>
+              </span>
+              <div>
+                <p class="font-semibold text-sm"><%= r.User.name %></p>
+                <%- include('../partials/stars', { value: r.rating }) %>
+              </div>
+            </div>
+            <span class="text-xs text-stone-400"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></span>
+          </div>
+          <p class="text-sm text-stone-600 mt-3 leading-relaxed"><%= r.comment %></p>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <!-- Sản phẩm liên quan -->
+  <% if (related.length) { %>
+    <section class="mt-14">
+      <h2 class="text-xl md:text-2xl font-bold tracking-tight mb-5">Có thể bạn cũng thích</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <% related.forEach(p => { %>
+          <%- include('../partials/product-card', { p }) %>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+</div>
+
+<script>
+  const VARIANTS = <%- JSON.stringify(product.variants.map(v => ({
+    id: v.id, color: v.color, color_code: v.color_code, capacity: v.capacity,
+    price: v.price, stock: v.stock, image: v.image
+  }))) %>;
+  const fmt = (n) => n.toLocaleString('vi-VN') + '₫';
+
+  let selColor = VARIANTS[0] ? VARIANTS[0].color : null;
+  let selCapacity = VARIANTS[0] ? VARIANTS[0].capacity : null;
+
+  function currentVariant() {
+    return VARIANTS.find(v => v.color === selColor && v.capacity === selCapacity) || null;
+  }
+
+  function render() {
+    const colors = [...new Map(VARIANTS.map(v => [v.color, v])).values()];
+    document.getElementById('color-options').innerHTML = colors.map(v => `
+      <button type="button" onclick="pickColor('${v.color.replace(/'/g, "\\'")}')"
+        class="w-9 h-9 rounded-full border-2 ${v.color === selColor ? 'border-brand-600 ring-2 ring-brand-200' : 'border-stone-200'}"
+        style="background:${v.color_code}" title="${v.color}"></button>`).join('');
+    document.getElementById('color-label').textContent = selColor || '';
+
+    const caps = [...new Set(VARIANTS.filter(v => v.color === selColor).map(v => v.capacity))];
+    if (!caps.includes(selCapacity)) selCapacity = caps[0];
+    document.getElementById('capacity-options').innerHTML = caps.map(c => `
+      <button type="button" onclick="pickCapacity(${c})"
+        class="px-4 py-2 rounded-full border text-sm font-medium ${c === selCapacity ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-stone-300 hover:border-brand-400'}">${c}ml</button>`).join('');
+
+    const v = currentVariant();
+    const priceEl = document.getElementById('price');
+    const stockEl = document.getElementById('stock-line');
+    const addBtn = document.getElementById('add-btn');
+    if (v) {
+      priceEl.textContent = fmt(v.price);
+      document.getElementById('variant-input').value = v.id;
+      if (v.image) document.getElementById('main-image').src = v.image;
+      if (v.stock > 0) {
+        stockEl.textContent = `Còn ${v.stock} sản phẩm`;
+        addBtn.disabled = false;
+        addBtn.textContent = 'Thêm vào giỏ';
+        document.getElementById('qty').max = v.stock;
+      } else {
+        stockEl.textContent = 'Tạm hết hàng';
+        addBtn.disabled = true;
+        addBtn.textContent = 'Hết hàng';
+      }
+    }
+  }
+  function pickColor(c) { selColor = c; render(); }
+  function pickCapacity(c) { selCapacity = c; render(); }
+  function changeQty(d) {
+    const el = document.getElementById('qty');
+    const max = parseInt(el.max) || 99;
+    el.value = Math.min(max, Math.max(1, (parseInt(el.value) || 1) + d));
+  }
+  render();
+
+  // Chọn sao đánh giá
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const n = parseInt(btn.dataset.star);
+      document.getElementById('rating-input').value = n;
+      document.querySelectorAll('.star-btn').forEach((b, i) => {
+        b.classList.toggle('text-amber-400', i < n);
+        b.classList.toggle('text-stone-300', i >= n);
+      });
+    });
+  });
+  // Mặc định 5 sao
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.replace('text-stone-300', 'text-amber-400'));
+</script>

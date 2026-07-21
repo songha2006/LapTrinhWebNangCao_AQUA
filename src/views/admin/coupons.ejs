@@ -1,0 +1,65 @@
+<div class="max-w-5xl">
+  <!-- Tạo mã mới -->
+  <form action="/admin/coupons" method="POST" class="bg-white rounded-2xl border border-stone-200 p-5 mb-5">
+    <h2 class="font-semibold mb-3">Tạo mã giảm giá</h2>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <input type="text" name="code" required placeholder="Mã (VD: SALE20)"
+             class="rounded-xl border border-stone-300 px-3 py-2.5 text-sm uppercase outline-none focus:border-brand-500 col-span-2 md:col-span-1">
+      <select name="type" class="rounded-xl border border-stone-300 px-3 py-2.5 text-sm bg-white">
+        <option value="percent">Giảm %</option>
+        <option value="fixed">Giảm tiền</option>
+      </select>
+      <input type="number" name="value" required min="1" placeholder="Giá trị"
+             class="rounded-xl border border-stone-300 px-3 py-2.5 text-sm outline-none focus:border-brand-500">
+      <input type="number" name="min_order" min="0" step="10000" placeholder="Đơn tối thiểu"
+             class="rounded-xl border border-stone-300 px-3 py-2.5 text-sm outline-none focus:border-brand-500">
+      <input type="number" name="quantity" required min="1" placeholder="Số lượt"
+             class="rounded-xl border border-stone-300 px-3 py-2.5 text-sm outline-none focus:border-brand-500">
+      <input type="date" name="expires_at"
+             class="rounded-xl border border-stone-300 px-3 py-2.5 text-sm outline-none focus:border-brand-500">
+    </div>
+    <button class="mt-3 px-5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">Tạo mã</button>
+  </form>
+
+  <div class="bg-white rounded-2xl border border-stone-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[720px]">
+      <thead>
+        <tr class="text-left text-stone-400 border-b border-stone-100">
+          <th class="p-4 font-medium">Mã</th>
+          <th class="p-4 font-medium">Loại giảm</th>
+          <th class="p-4 font-medium">Đơn tối thiểu</th>
+          <th class="p-4 font-medium">Lượt còn lại</th>
+          <th class="p-4 font-medium">Hết hạn</th>
+          <th class="p-4 font-medium">Tình trạng</th>
+          <th class="p-4 font-medium text-right">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-stone-50">
+        <% coupons.forEach(cp => { %>
+          <% const expired = cp.expires_at && new Date(cp.expires_at) < new Date(); %>
+          <tr class="hover:bg-stone-50">
+            <td class="p-4 font-bold"><%= cp.code %></td>
+            <td class="p-4"><%= cp.type === 'percent' ? cp.value + '%' : vnd(cp.value) %></td>
+            <td class="p-4"><%= vnd(cp.min_order) %></td>
+            <td class="p-4"><%= cp.quantity %></td>
+            <td class="p-4 text-xs"><%= cp.expires_at ? new Date(cp.expires_at).toLocaleDateString('vi-VN') : 'Không giới hạn' %></td>
+            <td class="p-4">
+              <% if (expired) { %>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">Hết hạn</span>
+              <% } else if (cp.quantity <= 0) { %>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-500 border border-stone-200">Hết lượt</span>
+              <% } else { %>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-200">Hoạt động</span>
+              <% } %>
+            </td>
+            <td class="p-4 text-right">
+              <form action="/admin/coupons/<%= cp.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Xóa mã <%= cp.code %>?')">
+                <button class="text-red-500 hover:underline text-xs font-semibold">Xóa</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

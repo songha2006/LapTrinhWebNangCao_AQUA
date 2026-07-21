@@ -1,0 +1,23 @@
+<div class="max-w-3xl">
+  <form action="/admin/brands" method="POST" class="flex gap-2 mb-5">
+    <input type="text" name="name" required placeholder="Tên thương hiệu mới"
+           class="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 text-sm bg-white outline-none focus:border-brand-500">
+    <button class="px-5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700">Thêm</button>
+  </form>
+
+  <div class="bg-white rounded-2xl border border-stone-200 divide-y divide-stone-50">
+    <% brands.forEach(b => { %>
+      <div class="flex items-center gap-3 p-4">
+        <form action="/admin/brands/<%= b.id %>" method="POST" class="flex items-center gap-2 flex-1">
+          <input type="text" name="name" value="<%= b.name %>" required
+                 class="flex-1 rounded-lg border border-transparent hover:border-stone-200 focus:border-brand-500 px-3 py-1.5 text-sm outline-none bg-transparent">
+          <span class="text-xs text-stone-400 w-24 text-right"><%= b.Products.length %> sản phẩm</span>
+          <button class="text-brand-600 hover:underline text-xs font-semibold">Lưu</button>
+        </form>
+        <form action="/admin/brands/<%= b.id %>/delete" method="POST" onsubmit="return confirm('Xóa thương hiệu <%= b.name %>?')">
+          <button class="text-red-500 hover:underline text-xs font-semibold">Xóa</button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="bg-white rounded-2xl border border-stone-200 divide-y divide-stone-50 max-w-4xl">
+  <% if (reviews.length === 0) { %>
+    <p class="p-10 text-center text-stone-400 text-sm">Chưa có đánh giá nào.</p>
+  <% } %>
+  <% reviews.forEach(r => { %>
+    <div class="p-5 <%= r.is_hidden ? 'opacity-50' : '' %>">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="font-semibold text-sm"><%= r.User ? r.User.name : '?' %></p>
+            <%- include('../partials/stars', { value: r.rating }) %>
+            <% if (r.is_hidden) { %>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Đang ẩn</span>
+            <% } %>
+          </div>
+          <p class="text-xs text-stone-400 mt-0.5">
+            Sản phẩm: <a href="/products/<%= r.Product ? r.Product.slug : '' %>" target="_blank" class="text-brand-600 hover:underline"><%= r.Product ? r.Product.name : '?' %></a>
+            &middot; <%= new Date(r.created_at).toLocaleString('vi-VN') %>
+          </p>
+          <p class="text-sm text-stone-600 mt-2"><%= r.comment %></p>
+        </div>
+        <form action="/admin/reviews/<%= r.id %>/toggle-hidden" method="POST" class="shrink-0">
+          <button class="text-xs font-semibold px-3 py-1.5 rounded-full border <%= r.is_hidden ? 'border-brand-300 text-brand-600 hover:bg-brand-50' : 'border-stone-300 text-stone-500 hover:border-red-300 hover:text-red-500' %>">
+            <%= r.is_hidden ? 'Hiện lại' : 'Ẩn đánh giá' %>
+          </button>
+        </form>
+      </div>
+    </div>
+  <% }) %>
+</div>

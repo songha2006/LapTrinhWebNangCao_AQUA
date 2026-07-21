@@ -1,0 +1,133 @@
+<div class="max-w-6xl">
+  <p class="text-sm text-stone-500 mb-6">
+    Tải ảnh từ máy, sau đó <strong>kéo thả điểm tròn</strong> trên ảnh để chọn vùng hiển thị và dùng
+    <strong>thanh trượt</strong> để phóng to/thu nhỏ cho vừa khung. Bỏ trống thì tự dùng ảnh sản phẩm nổi bật.
+  </p>
+
+  <%
+    const slots = [
+      ['hero_1_image', 'Ảnh hero 1 (trái, đầu trang)', 'aspect-[4/5]'],
+      ['hero_2_image', 'Ảnh hero 2 (phải, đầu trang)', 'aspect-[4/5]'],
+      ['banner_image', 'Ảnh banner giữa trang', 'aspect-[16/7]'],
+    ];
+    const parsePos = (v) => { const m = (v || '50% 50%').match(/([\d.]+)%\s+([\d.]+)%/); return m ? [parseFloat(m[1]), parseFloat(m[2])] : [50, 50]; };
+  %>
+
+  <div class="grid md:grid-cols-3 gap-5">
+    <% slots.forEach(([key, label, ratio]) => { %>
+      <%
+        const hasImg = !!settings[key];
+        const [px, py] = parsePos(settings[key + '_pos']);
+        const zoom = parseFloat(settings[key + '_zoom'] || '1');
+        const imgStyle = `object-position:${px}% ${py}%;transform:scale(${zoom});transform-origin:${px}% ${py}%;`;
+      %>
+      <div class="bg-white rounded-2xl border border-black/5 p-5">
+        <h2 class="font-semibold text-sm mb-3"><%= label %></h2>
+
+        <!-- Vùng xem trước + kéo thả -->
+        <div id="prev-<%= key %>" class="relative rounded-xl overflow-hidden bg-sand border border-black/5 <%= ratio %> mb-3 select-none <%= hasImg ? 'cursor-move' : '' %>">
+          <% if (hasImg) { %>
+            <img id="img-<%= key %>" src="<%= settings[key] %>" alt="" style="<%= imgStyle %>" class="w-full h-full object-cover pointer-events-none">
+            <div id="dot-<%= key %>" class="absolute w-6 h-6 -ml-3 -mt-3 rounded-full border-[3px] border-white bg-accent-500/80 shadow-lg pointer-events-none" style="left:<%= px %>%;top:<%= py %>%;"></div>
+          <% } else { %>
+            <div class="w-full h-full flex flex-col items-center justify-center text-stone-300">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6"/></svg>
+              <span class="text-xs mt-1.5">Đang dùng ảnh mặc định</span>
+            </div>
+          <% } %>
+        </div>
+
+        <% if (hasImg) { %>
+          <!-- Lưu vị trí + zoom -->
+          <form action="/admin/banner/position" method="POST" class="mb-3">
+            <input type="hidden" name="slot" value="<%= key %>">
+            <input type="hidden" id="posx-<%= key %>" name="pos_x" value="<%= px %>">
+            <input type="hidden" id="posy-<%= key %>" name="pos_y" value="<%= py %>">
+            <label class="flex items-center gap-2 text-xs text-stone-500 mb-2">
+              <span class="w-12 shrink-0">Phóng</span>
+              <input type="range" id="slider-<%= key %>" min="100" max="250" step="5" value="<%= Math.round(zoom * 100) %>" class="flex-1 accent-accent-500">
+              <span id="zval-<%= key %>" class="w-10 text-right font-medium"><%= Math.round(zoom * 100) %>%</span>
+              <input type="hidden" id="zoom-<%= key %>" name="zoom" value="<%= zoom %>">
+            </label>
+            <button class="w-full py-2.5 rounded-xl bg-brand-700 text-white text-sm font-semibold hover:bg-brand-800 transition">Lưu vị trí</button>
+          </form>
+        <% } %>
+
+        <!-- Upload ảnh mới -->
+        <form action="/admin/banner" method="POST" enctype="multipart/form-data" class="space-y-2">
+          <input type="hidden" name="slot" value="<%= key %>">
+          <input type="file" name="image" accept="image/*" required
+                 class="block w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-ink file:text-white file:font-medium file:cursor-pointer hover:file:bg-black">
+          <button class="w-full py-2.5 rounded-xl border border-stone-300 text-sm font-semibold hover:border-brand-500 hover:text-brand-700 transition"><%= hasImg ? 'Đổi ảnh khác' : 'Tải ảnh lên' %></button>
+        </form>
+
+        <% if (hasImg) { %>
+          <form action="/admin/banner/reset" method="POST" class="mt-2" onsubmit="return confirm('Khôi phục ảnh mặc định?')">
+            <input type="hidden" name="slot" value="<%= key %>">
+            <button class="w-full py-2 text-xs font-medium text-stone-500 hover:text-accent-600">Khôi phục ảnh mặc định</button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="mt-6 flex items-center gap-3 text-sm">
+    <a href="/" target="_blank" class="inline-flex items-center gap-1.5 font-medium text-brand-700 hover:underline">
+      Xem trang chủ
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>
+    </a>
+    <span class="text-stone-300">·</span>
+    <span class="text-stone-400">Ảnh tối đa 5MB · JPG/PNG/WebP</span>
+  </div>
+</div>
+
+<script>
+  // Danh sách slot có ảnh (được render động)
+  const SLOTS = <%- JSON.stringify(slots.filter(([k]) => !!settings[k]).map(([k]) => k)) %>;
+
+  SLOTS.forEach((key) => {
+    const prev = document.getElementById('prev-' + key);
+    const img = document.getElementById('img-' + key);
+    const dot = document.getElementById('dot-' + key);
+    const posX = document.getElementById('posx-' + key);
+    const posY = document.getElementById('posy-' + key);
+    const slider = document.getElementById('slider-' + key);
+    const zoomInput = document.getElementById('zoom-' + key);
+    const zval = document.getElementById('zval-' + key);
+    if (!prev || !img) return;
+
+    let dragging = false;
+
+    const apply = () => {
+      const x = parseFloat(posX.value), y = parseFloat(posY.value);
+      const z = parseFloat(zoomInput.value);
+      img.style.objectPosition = x + '% ' + y + '%';
+      img.style.transform = 'scale(' + z + ')';
+      img.style.transformOrigin = x + '% ' + y + '%';
+      dot.style.left = x + '%';
+      dot.style.top = y + '%';
+    };
+
+    const setFromEvent = (e) => {
+      const rect = prev.getBoundingClientRect();
+      const cx = (e.touches ? e.touches[0].clientX : e.clientX);
+      const cy = (e.touches ? e.touches[0].clientY : e.clientY);
+      const x = Math.min(100, Math.max(0, ((cx - rect.left) / rect.width) * 100));
+      const y = Math.min(100, Math.max(0, ((cy - rect.top) / rect.height) * 100));
+      posX.value = x.toFixed(1);
+      posY.value = y.toFixed(1);
+      apply();
+    };
+
+    prev.addEventListener('pointerdown', (e) => { dragging = true; prev.setPointerCapture(e.pointerId); setFromEvent(e); });
+    prev.addEventListener('pointermove', (e) => { if (dragging) setFromEvent(e); });
+    prev.addEventListener('pointerup', () => { dragging = false; });
+    prev.addEventListener('pointercancel', () => { dragging = false; });
+
+    slider.addEventListener('input', () => {
+      zoomInput.value = (slider.value / 100).toFixed(2);
+      zval.textContent = slider.value + '%';
+      apply();
+    });
+  });
+</script>

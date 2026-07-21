@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Database & môi trường
+database.sqlite
+.env
+
+# Ảnh người dùng upload (không đẩy lên git)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Công cụ Claude Code / skill (không thuộc mã nguồn app)
+.claude/
+.agents/
+skills-lock.json
+
+# Log & tạm
+npm-debug.log*
+*.log

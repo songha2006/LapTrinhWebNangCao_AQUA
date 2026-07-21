@@ -1,0 +1,11 @@
+<%
+  const STATUS_MAP = {
+    pending:   ['Chờ xác nhận', 'bg-amber-50 text-amber-700 border-amber-200'],
+    confirmed: ['Đã xác nhận', 'bg-sky-50 text-sky-700 border-sky-200'],
+    shipping:  ['Đang giao', 'bg-indigo-50 text-indigo-700 border-indigo-200'],
+    completed: ['Hoàn thành', 'bg-brand-50 text-brand-700 border-brand-200'],
+    cancelled: ['Đã hủy', 'bg-red-50 text-red-600 border-red-200'],
+  };
+  const [label, cls] = STATUS_MAP[status] || [status, 'bg-stone-100 text-stone-600 border-stone-200'];
+%>
+<span class="inline-block text-xs font-semibold px-2.5 py-1 rounded-full border <%= cls %>"><%= label %></span>

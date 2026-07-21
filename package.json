@@ -1,0 +1,24 @@
+{
+  "name": "binh-giu-nhiet",
+  "version": "1.0.0",
+  "description": "Web ban binh giu nhiet - Do an Lap trinh web nang cao",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node src/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.11.5",
+    "sequelize": "^6.37.5",
+    "sqlite3": "^5.1.7"
+  }
+}
