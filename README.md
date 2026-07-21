@@ -4,6 +4,8 @@
 
 **Công nghệ:** Node.js + Express + EJS + Sequelize (MySQL / SQLite) + Tailwind CSS + Chart.js.
 
+> 🔰 **Người mới / bạn bè muốn chạy thử?** Xem hướng dẫn từng bước cho Windows & Mac (kể cả khi chưa cài Node.js): [HUONG-DAN-CHAY.md](HUONG-DAN-CHAY.md)
+
 ---
 
 ## 1. Chạy nhanh (không cần cài MySQL)
